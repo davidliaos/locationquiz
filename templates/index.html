@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+</head>
+<body>
+<h2>Questions answered: {{ answered }} / {{ total }}</h2>
+
+{% if message %} <!-- Check if there's a message to display -->
+    <h3>{{ message }}</h3>
+{% endif %}
+
+{% if not quiz_complete %}
+<form method="post">
+    <h1>{{ question['question'] }}</h1>
+    {% for option in question['options'] %}
+    <input type="radio" name="answer" value="{{ option }}" required>{{ option }}<br> <!-- Added "required" to ensure an option is selected -->
+    {% endfor %}
+    <input type="submit" value="Next">
+</form>
+{% else %}
+    <!-- Display your ID submission form here, this is where you'd ask for the user's ID after the quiz is complete -->
+    <form method="post" action="/submit-id">  <!-- Ensure you have the correct action here -->
+        <label for="user_id">Enter your ID:</label>
+        <input type="text" name="user_id" required>
+        <input type="submit" value="Submit ID">
+    </form>
+{% endif %}
+
+</body>
+</html>
