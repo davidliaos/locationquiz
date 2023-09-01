@@ -1,32 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Quiz</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        #logo {
+        size: 400%;  /* Adjust this value as needed */
+        width: 270px;
+        }
+
+        h1, h2, h3 {
+            margin: 20px 0;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Add these styles */
+        .banner {
+            margin: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .banner.correct {
+            background-color: #4CAF50; /* green */
+            color: white;
+        }
+
+        .banner.wrong {
+            background-color: #f44336; /* red */
+            color: white;
+
+        }
+
+    </style>
 </head>
+
 <body>
-<h2>Questions answered: {{ answered }} / {{ total }}</h2>
 
-{% if message %} <!-- Check if there's a message to display -->
-    <h3>{{ message }}</h3>
-{% endif %}
+    <img id="logo" src="{{ url_for('static', filename='csi.svg') }}" alt="CSI Logo">
+    <!-- Update this section -->
+    {% if message %}
+        {% if message == "Great, keep going!" %}
+            <div class="banner correct">{{ message }}</div>
+        {% else %}
+            <div class="banner wrong">{{ message }}</div>
+        {% endif %}
+    {% endif %}
 
-{% if not quiz_complete %}
-<form method="post">
-    <h1>{{ question['question'] }}</h1>
-    {% for option in question['options'] %}
-    <input type="radio" name="answer" value="{{ option }}" required>{{ option }}<br> <!-- Added "required" to ensure an option is selected -->
-    {% endfor %}
-    <input type="submit" value="Next">
-</form>
-{% else %}
-    <!-- Display your ID submission form here, this is where you'd ask for the user's ID after the quiz is complete -->
-    <form method="post" action="/submit-id">  <!-- Ensure you have the correct action here -->
+    <h2>Questions correctly answered: {{ score|default(0) }}</h2>
+
+    {% if not quiz_complete %}
+    <form method="post">
+        <h1>{{ question['question'] }}</h1>
+        {% for option in question['options'] %}
+        <input type="radio" name="answer" value="{{ option }}" required>{{ option }}<br>
+        {% endfor %}
+        <br>
+        <input type="submit" value="Next">
+    </form>
+    {% else %}
+    <h2>Final Score: {{ score }}</h2>
+    <form method="post" action="/submit-id">
         <label for="user_id">Enter your ID:</label>
         <input type="text" name="user_id" required>
         <input type="submit" value="Submit ID">
     </form>
-{% endif %}
+    {% endif %}
 
 </body>
+
 </html>
