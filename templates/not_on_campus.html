@@ -1,16 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Not On Campus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .location-error {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+            margin-top: 20px;  /* Added margin to separate from the logo */
+            display: inline-block;
+        }
+
+        #logo {
+        size: 400%;  /* Adjust this value as needed */
+        width: 270px;
+        }
+
+    </style>
 </head>
+
 <body>
+    <img id="logo" src="{{ url_for('static', filename='csi.svg') }}" alt="CSI Logo">
 
-<div class="location-error">
-    Sorry, you must be on the College of Staten Island campus to access the quiz. Please go on campus and try again.
-</div>
-
+    <div class="location-error">
+        Sorry, you must be on the College of Staten Island campus to access the quiz. Please go on campus and try again.
+    </div>
 </body>
+
 </html>
