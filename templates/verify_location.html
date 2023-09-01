@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Location</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> <!-- Assuming you have a styles.css for styling -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .location-check {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+            margin-top: 20px;  /* Separation from the logo */
+            display: inline-block;
+        }
+
+        #logo {
+            width: 270px; /* Adjust the width to set the size of the logo */
+            display: block;
+            margin: 0 auto 20px;  /* Center the logo and add margin below */
+        }
+    </style>
     <script src="{{ url_for('static', filename='js/verify.js') }}"></script>
 </head>
+
 <body>
+    <img id="logo" src="{{ url_for('static', filename='csi.svg') }}" alt="CSI Logo">
 
-<div id="message" class="location-check">Checking your location...</div>
-
+    <div id="message" class="location-check">Checking your location...</div>
 </body>
+
 </html>
