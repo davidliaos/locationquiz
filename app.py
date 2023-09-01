@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, redirect, url_for, session, j
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import random
+from datetime import datetime
+
 from shapely.geometry import Point, Polygon
 
 
@@ -31,8 +33,9 @@ questions_bank = [
     {"question": "Which country is the origin of the cocktail Mojito?", "options": ["Brazil", "Mexico", "Cuba"], "correct": "Cuba"},
 ]
 
-# Define the boundaries of the College of Staten Island. 
-# You'll need to refine these coordinates to better represent the actual boundaries.
+random.shuffle(questions_bank)
+
+# Boundaries of the College of Staten Island. 
 college_polygon = Polygon([(40.607864, -74.155098), (40.607962, -74.146686), (40.596232, -74.145570), (40.596199, -74.153424)])
 
 @app.route('/verify-location', methods=['POST'])
@@ -45,7 +48,6 @@ def verify_location():
     else:
         return jsonify(allowed=False)
     
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     message = None  # This will hold our success or error message
@@ -57,7 +59,9 @@ def index():
     if 'questions' not in session:
         session['questions'] = random.sample(questions_bank, 20)  # Select 20 random questions
         session['score'] = 0
+        session['asked_questions'] = []  # Track questions that have already been asked
         session['answered'] = 0
+
 
     if request.method == 'POST':
         answer = request.form['answer']
@@ -65,16 +69,25 @@ def index():
 
         if answer == correct_answer:
             session['score'] += 1
-            session['answered'] += 1
             message = "Great, keep going!"
+            session['asked_questions'].append(session['answered'])  # Add the question to the list of asked questions
+
         else:
             message = "Wrong, try another!"
+            session['asked_questions'].append(session['answered'])  # Add the question to the list of asked questions
+
+        # Choose another question 
+        remaining_questions = [i for i in range(len(session['questions'])) if i not in session['asked_questions']]
+        if remaining_questions:
+            session['answered'] = random.choice(remaining_questions)
+        else:
+            session['answered'] = len(session['questions'])
 
     # If they're still answering questions
-    if session['answered'] < len(session['questions']):
+    if 'answered' in session and session['answered'] < len(session['questions']):
         return render_template('index.html', 
                                question=session['questions'][session['answered']], 
-                               answered=session['answered'], 
+                               score=session['score'], 
                                total=len(session['questions']),
                                message=message, # Pass the message to the template
                                quiz_complete=False) 
@@ -82,8 +95,25 @@ def index():
         # If they've answered all questions, render the same template but in quiz_complete mode
         return render_template('index.html',
                                quiz_complete=True, 
-                               message=None)  # No need for a message here
+                               message=None)  
 
+def add_to_sheet(user_id, score, time):
+    """
+    Add data to Google Sheets.
+    """
+    # Use creds to create a client to interact with the Google Drive API
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('cred.json', scope) # Put json into parent directory(same as this one)
+    client = gspread.authorize(creds)
+
+    # Google Sheet's name 
+    sheet = client.open("CSI Quiz").sheet1  # Make sure to replace with your Google Sheet's name
+
+    # Extract and print all of the values
+    list_of_hashes = sheet.get_all_records()
+
+    # Add a new row with user_id, score, and time
+    sheet.append_row([user_id, score, time])
 
 @app.route('/submit-id', methods=['POST'])
 def submit_id():
